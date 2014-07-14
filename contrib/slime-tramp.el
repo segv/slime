@@ -1,6 +1,6 @@
-(eval-and-compile
-  (require 'slime)
-  (require 'tramp))
+(require 'slime)
+(require 'tramp)
+(eval-when-compile (require 'cl)) ; lexical-let
 
 (define-slime-contrib slime-tramp
   "Filename translations for tramp"

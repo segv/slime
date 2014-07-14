@@ -9,8 +9,8 @@ LISP=sbcl
 
 LOAD_PATH=-L .
 
-ELFILES := slime.el slime-autoloads.el slime-tests.el
-ELCFILES := $(patsubst %.el,%.elc,$(ELFILES))
+ELFILES := slime.el slime-autoloads.el slime-tests.el $(wildcard lib/*.el)
+ELCFILES := $(ELFILES:.el=.elc)
 
 default: compile contrib-compile
 
@@ -36,13 +36,12 @@ SELECTOR  -- selector for ERT tests ($(SELECTOR))\n"
 
 # Compilation
 #
-slime.elc: slime.el ChangeLog
+slime.elc: slime.el ChangeLog lib/hyperspec.elc
 
 %.elc: %.el
 	$(EMACS) -Q $(LOAD_PATH) --batch -f batch-byte-compile $<
 
 compile: $(ELCFILES)
-	$(EMACS) -Q --batch --eval "(batch-byte-recompile-directory 0)" ./lib
 
 # Automated tests
 #
@@ -53,7 +52,18 @@ check: compile
 		--eval "(require 'slime-tests)"				\
 		--eval "(slime-setup)"					\
 		--eval "(setq inferior-lisp-program \"$(LISP)\")"	\
-		--eval "(slime-batch-test (quote $(SELECTOR)))"
+		--eval '(slime-batch-test (quote $(SELECTOR)))'
+
+# run tests interactively
+#
+# FIXME: Not terribly useful until bugs in ert-run-tests-interactively
+# are fixed.
+test: compile
+	${EMACS} -Q -nw $(LOAD_PATH)					\
+		--eval "(require 'slime-tests)"				\
+		--eval "(slime-setup)"					\
+		--eval "(setq inferior-lisp-program \"$(LISP)\")"	\
+		--eval '(slime-batch-test (quote $(SELECTOR)))'
 
 elpa-slime:
 	echo "Not implemented yet: elpa-slime target" && exit 255

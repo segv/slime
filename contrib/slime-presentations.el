@@ -200,7 +200,8 @@ strings to line up below the current point."
              (slime-presentation-text presentation))))
 
 (defun slime-presentations-around-point (point &optional object)
-  (when (<= (point-min) point (point-max))
+  (when (and (<= (point-min) point)
+             (<= point (point-max)))
     (let ((object (or object (current-buffer))))
       (loop for (key value . rest) on (text-properties-at point object) by 'cddr
             when (slime-presentation-p key)

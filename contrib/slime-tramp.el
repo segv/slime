@@ -61,7 +61,7 @@ See also `slime-create-filename-translator'."
                                   username
                                   remote-host
                                   lisp-filename)
-      (tramp-make-tramp-file-name nil
+      (tramp-make-tramp-file-name tramp-default-method
                                   username
                                   remote-host
                                   lisp-filename)))

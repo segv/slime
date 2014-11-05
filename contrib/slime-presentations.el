@@ -20,6 +20,7 @@
                          'slime-after-change-function 'append t)))
    (add-hook 'slime-event-hooks 'slime-dispatch-presentation-event)
    (setq slime-write-string-function 'slime-presentation-write)
+   (add-hook 'slime-connected-hook 'slime-presentations-on-connected)
    (add-hook 'slime-repl-return-hooks 'slime-presentation-on-return-pressed)
    (add-hook 'slime-repl-current-input-hooks 'slime-presentation-current-input)
    (add-hook 'slime-open-stream-hooks 'slime-presentation-on-stream-open)
@@ -774,7 +775,7 @@ output; otherwise the new input is appended."
 ;;; hook functions (hard to isolate stuff)
 
 (defun slime-dispatch-presentation-event (event)
-  (destructure-case event
+  (slime-dcase event
     ((:presentation-start id &optional target)
      (slime-mark-presentation-start id target)
      t)
@@ -852,7 +853,7 @@ even on Common Lisp implementations without weak hash tables."
 (defun slime-presentation-inspector-insert-ispec (ispec)
   (if (stringp ispec)
       (insert ispec)
-    (destructure-case ispec
+    (slime-dcase ispec
       ((:value string id)
        (slime-propertize-region
            (list 'slime-part-number id
@@ -871,5 +872,8 @@ even on Common Lisp implementations without weak hash tables."
   (slime-insert-presentation
    (sldb-in-face local-value value)
    `(:frame-var ,slime-current-thread ,(car frame) ,index) t))
+
+(defun slime-presentations-on-connected ()
+  (slime-eval-async `(swank:init-presentations)))
 
 (provide 'slime-presentations)
